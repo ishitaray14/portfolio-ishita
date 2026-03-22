@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - View Messages</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a0a14 0%, #2d1620 100%);
+            color: #fff;
+            padding: 2rem;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            color: #ff1b8d;
+            margin-bottom: 1rem;
+            font-size: 2.5rem;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+        }
+
+        .stat-card {
+            background: rgba(255, 27, 141, 0.1);
+            border: 2px solid rgba(255, 27, 141, 0.3);
+            border-radius: 12px;
+            padding: 1.5rem;
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 3rem;
+            font-weight: bold;
+            color: #ff1b8d;
+        }
+
+        .stat-label {
+            color: #d4a5c3;
+            margin-top: 0.5rem;
+            text-transform: uppercase;
+            font-size: 0.9rem;
+            letter-spacing: 1px;
+        }
+
+        .messages-section {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 27, 141, 0.2);
+            border-radius: 12px;
+            padding: 2rem;
+        }
+
+        .messages-section h2 {
+            color: #ff1b8d;
+            margin-bottom: 2rem;
+            font-size: 1.8rem;
+        }
+
+        .message-card {
+            background: rgba(255, 27, 141, 0.05);
+            border: 1px solid rgba(255, 27, 141, 0.2);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            transition: all 0.3s;
+        }
+
+        .message-card:hover {
+            background: rgba(255, 27, 141, 0.1);
+            border-color: #ff1b8d;
+            transform: translateY(-3px);
+        }
+
+        .message-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid rgba(255, 27, 141, 0.2);
+        }
+
+        .message-name {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: #ff1b8d;
+        }
+
+        .message-email {
+            color: #c471f5;
+            font-size: 0.95rem;
+        }
+
+        .message-time {
+            color: #d4a5c3;
+            font-size: 0.85rem;
+        }
+
+        .message-content {
+            color: #ffe4f2;
+            line-height: 1.6;
+            font-size: 1.05rem;
+        }
+
+        .no-messages {
+            text-align: center;
+            padding: 3rem;
+            color: #d4a5c3;
+            font-size: 1.2rem;
+        }
+
+        .refresh-btn {
+            background: #ff1b8d;
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            margin-bottom: 2rem;
+            transition: all 0.3s;
+        }
+
+        .refresh-btn:hover {
+            background: #d91577;
+            transform: translateY(-2px);
+        }
+
+        .loading {
+            text-align: center;
+            padding: 3rem;
+            color: #ff1b8d;
+            font-size: 1.2rem;
+        }
+
+        .error {
+            background: rgba(255, 27, 141, 0.2);
+            border: 2px solid #ff1b8d;
+            border-radius: 8px;
+            padding: 1.5rem;
+            color: #ff1b8d;
+            margin: 2rem 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📬 Admin Dashboard</h1>
+        <p style="color: #d4a5c3; margin-bottom: 2rem;">View all contact form submissions</p>
+
+        <div class="stats">
+            <div class="stat-card">
+                <div class="stat-number" id="totalMessages">0</div>
+                <div class="stat-label">Total Messages</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="todayMessages">0</div>
+                <div class="stat-label">Today's Messages</div>
+            </div>
+        </div>
+
+        <button class="refresh-btn" onclick="loadMessages()">🔄 Refresh Messages</button>
+
+        <div class="messages-section">
+            <h2>📨 All Messages</h2>
+            <div id="messagesContainer">
+                <div class="loading">Loading messages...</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        async function loadMessages() {
+            const container = document.getElementById('messagesContainer');
+            container.innerHTML = '<div class="loading">Loading messages...</div>';
+
+            try {
+                const response = await fetch('http://localhost:3000/contacts');
+                const messages = await response.json();
+
+                // Update stats
+                document.getElementById('totalMessages').textContent = messages.length;
+
+                // Calculate today's messages
+                const today = new Date().toDateString();
+                const todayCount = messages.filter(msg => {
+                    const msgDate = new Date(msg.timestamp).toDateString();
+                    return msgDate === today;
+                }).length;
+                document.getElementById('todayMessages').textContent = todayCount;
+
+                // Display messages
+                if (messages.length === 0) {
+                    container.innerHTML = '<div class="no-messages">No messages yet. Waiting for contact form submissions...</div>';
+                } else {
+                    // Sort by newest first
+                    messages.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+
+                    container.innerHTML = messages.map(msg => `
+                        <div class="message-card">
+                            <div class="message-header">
+                                <div>
+                                    <div class="message-name">${msg.name}</div>
+                                    <div class="message-email">📧 ${msg.email}</div>
+                                </div>
+                                <div class="message-time">
+                                    ${new Date(msg.timestamp).toLocaleString()}
+                                </div>
+                            </div>
+                            <div class="message-content">
+                                💬 ${msg.message}
+                            </div>
+                        </div>
+                    `).join('');
+                }
+            } catch (error) {
+                container.innerHTML = `
+                    <div class="error">
+                        ❌ Error loading messages. Make sure the server is running!<br>
+                        Run: <code>npm start</code> in your terminal.
+                    </div>
+                `;
+            }
+        }
+
+        // Load messages when page loads
+        loadMessages();
+
+        // Auto-refresh every 10 seconds
+        setInterval(loadMessages, 10000);
+    </script>
+</body>
+</html>
