@@ -36,8 +36,7 @@ portfolio_ishita/
 
 1. **Clone & Install**
    ```bash
-   git clone [https://github.com/ishitaray14/portfolio_ishita.git](https://github.com/ishitaray14/portfolio_ishita.git)
-   cd portfolio_ishita
+   git clone https://github.com/ishitaray14/portfolio-ishita.git
    npm install
 2. **Run Backend**
 
