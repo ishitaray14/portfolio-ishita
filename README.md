@@ -3,7 +3,7 @@
 A modern, responsive full-stack portfolio featuring a pink-themed design, animated canvas background, and real-time contact storage.
 
 [![Live Demo](https://img.shields.io/badge/demo-live-brightgreen)](https://ishita-kumari.netlify.app/)
-[![GitHub](https://img.shields.io/badge/github-portfolio-blue)](https://github.com/ishitaray14/portfolio_ishita)
+
 
 ## 🚀 Live Links
 - **Portfolio Website:** [Ishita Kumari](https://ishita-kumari.netlify.app/)
